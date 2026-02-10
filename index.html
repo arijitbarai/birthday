@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        /* --- Base Styles --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #1a0a2e;
+            overflow: hidden;
+            font-family: 'Fredoka', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(147, 51, 234, 0.3) 0%, rgba(26, 10, 46, 1) 70%);
+            z-index: 0;
+        }
+
+        #screen-1, #screen-2 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transition: all 1.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #screen-2 {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.9) translateY(20px);
+            z-index: 10;
+        }
+
+        /* --- Cake & Flames --- */
+        .cake-wrapper {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            transform: scale(0);
+            transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 5;
+            filter: drop-shadow(0 0 30px rgba(186, 104, 200, 0.5));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1.1); }
+            50% { transform: translateY(-15px) scale(1.1); }
+        }
+
+        .cake-img { width: 100%; height: auto; }
+
+        .candle-container {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: space-around;
+            width: 60%;
+            height: 50px;
+            z-index: 6;
+        }
+
+        .flame {
+            width: 12px;
+            height: 20px;
+            background: radial-gradient(#fff, #ffeb3b, #ff9800);
+            border-radius: 50% 50% 20% 20%;
+            opacity: 0;
+            filter: blur(1px);
+            box-shadow: 0 0 15px #ffeb3b, 0 0 25px #f44336;
+            transition: opacity 0.5s;
+        }
+
+        .flame.lit {
+            opacity: 1;
+            animation: flicker 0.4s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-2deg); }
+            100% { transform: scale(1.1) rotate(2deg); opacity: 0.9; }
+        }
+
+        /* --- Pulsing Button --- */
+        #blow-btn {
+            margin-top: 40px;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: white;
+            color: #7b1fa2;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s;
+            z-index: 10;
+        }
+
+        #blow-btn.show {
+            opacity: 1;
+            transform: translateY(0);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        /* --- Decorations & Screen 2 --- */
+        .decoration { font-size: 3rem; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: all 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 1; }
+
+        .marquee-container { width: 100%; overflow: hidden; background: rgba(255, 255, 255, 0.05); padding: 20px 0; transform: rotate(-2deg); }
+        .marquee-content { display: flex; width: max-content; animation: scroll 30s linear infinite; }
+        .photo { width: 180px; height: 180px; margin: 0 15px; border-radius: 15px; border: 5px solid white; object-fit: cover; box-shadow: 0 8px 15px rgba(0,0,0,0.4); }
+
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        .final-msg { font-family: 'Pacifico', cursive; font-size: 3.5rem; color: #ce93d8; text-shadow: 0 0 20px rgba(206, 147, 216, 0.5); margin-bottom: 7px; text-align: center; }
+        .second-msg { font-family: 'Pacifico', cursive; font-size: 2.5rem; color: #ce93d8; text-shadow: 0 0 20px rgba(206, 147, 216, 0.5); margin-bottom: 30px; text-align: center; }
+        .confetti { position: absolute; width: 10px; height: 10px; z-index: 100; border-radius: 2px; }
+        
+        #music-status { position: fixed; bottom: 20px; right: 20px; font-size: 1.5rem; opacity: 0; transition: opacity 1s; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <audio id="birthday-music" loop>
+        <source src="Vellake song Ringtone  Vellake Bgm  Instagram Trending Ringtone bgm.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="screen-1">
+        <div class="decoration" id="d1">🎁</div>
+        <div class="decoration" id="d2">✨</div>
+        <div class="decoration" id="d3">💖</div>
+        <div class="decoration" id="d4">🧸</div>
+
+        <div class="cake-wrapper" id="cake-wrap">
+            <img src="cake.png" alt="Cake" class="cake-img">
+            <div class="candle-container">
+                <div class="flame"></div>
+                <div class="flame"></div>
+                <div class="flame"></div>
+                <div class="flame"></div>
+                <div class="flame"></div>
+            </div>
+        </div>
+
+        <button id="blow-btn">Make a wish & Blow! 🌬️</button>
+    </div>
+
+    <div id="screen-2">
+        <h1 class="final-msg">Happy Birthday!</h1>
+        <h2 class="second-msg">Madam ji</h2>
+        
+        <div class="marquee-container">
+            <div class="marquee-content">
+                <img src="1.jpeg" class="photo"><img src="2.jpeg" class="photo">
+                <img src="3.jpeg" class="photo"><img src="4.jpeg" class="photo">
+                <img src="5.jpeg" class="photo"><img src="6.jpeg" class="photo">
+                <img src="7.jpeg" class="photo"><img src="8.jpeg" class="photo">
+                <img src="1.jpeg" class="photo"><img src="2.jpeg" class="photo">
+                <img src="3.jpeg" class="photo"><img src="4.jpeg" class="photo">
+                <img src="5.jpeg" class="photo"><img src="6.jpeg" class="photo">
+                <img src="7.jpeg" class="photo"><img src="8.jpeg" class="photo">
+            </div>
+        </div>
+        <p style="margin-top: 30px; font-size: 1.2rem; opacity: 0.8; letter-spacing: 1px;">You deserve the sweetest day ever.</p>
+    </div>
+
+    <div id="music-status">🎶 Playing...</div>
+
+    <script>
+        window.addEventListener('load', () => {
+            const cake = document.getElementById('cake-wrap');
+            const btn = document.getElementById('blow-btn');
+            const music = document.getElementById('birthday-music');
+            const musicStatus = document.getElementById('music-status');
+            
+            const decorations = [
+                { el: document.getElementById('d1'), x: '15vw', y: '15vh' },
+                { el: document.getElementById('d2'), x: '85vw', y: '15vh' },
+                { el: document.getElementById('d3'), x: '15vw', y: '85vh' },
+                { el: document.getElementById('d4'), x: '85vw', y: '85vh' }
+            ];
+            const flames = document.querySelectorAll('.flame');
+
+            // Initial Animations
+            setTimeout(() => {
+                cake.style.transform = 'scale(1.1)';
+                decorations.forEach(d => {
+                    d.el.style.left = d.x; d.el.style.top = d.y;
+                });
+            }, 500);
+
+            setTimeout(() => {
+                flames.forEach((f, i) => {
+                    setTimeout(() => f.classList.add('lit'), i * 150);
+                });
+            }, 1800);
+
+            setTimeout(() => btn.classList.add('show'), 3000);
+
+            // The Trigger: Music starts here!
+            btn.addEventListener('click', () => {
+                // Play music
+                music.play().catch(e => console.log("Music blocked by browser or file missing."));
+                
+                // Visual feedback
+                flames.forEach(f => f.classList.remove('lit'));
+                createConfetti();
+                
+                setTimeout(() => {
+                    document.getElementById('screen-1').style.opacity = '0';
+                    document.getElementById('screen-1').style.transform = 'scale(1.2)';
+                    
+                    const s2 = document.getElementById('screen-2');
+                    s2.style.opacity = '1';
+                    s2.style.transform = 'scale(1) translateY(0)';
+                    s2.style.pointerEvents = 'auto';
+                    
+                    musicStatus.style.opacity = '0.6';
+                }, 800);
+            });
+
+            function createConfetti() {
+                const colors = ['#ff00ff', '#00ffff', '#ffff00', '#ff0000', '#ffffff'];
+                for (let i = 0; i < 70; i++) {
+                    const c = document.createElement('div');
+                    c.className = 'confetti';
+                    c.style.left = Math.random() * 100 + 'vw';
+                    c.style.top = '-10px';
+                    c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    document.body.appendChild(c);
+                    
+                    c.animate([
+                        { transform: `translate3d(0,0,0) rotate(0)`, opacity: 1 },
+                        { transform: `translate3d(${(Math.random() - 0.5) * 300}px, 100vh, 0) rotate(1080deg)`, opacity: 0 }
+                    ], {
+                        duration: 3000 + Math.random() * 2000,
+                        easing: 'cubic-bezier(0, .9, .57, 1)'
+                    }).onfinish = () => c.remove();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
